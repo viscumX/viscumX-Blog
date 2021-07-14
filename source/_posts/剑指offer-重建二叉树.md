@@ -32,26 +32,26 @@ tags: 刷题
 class Solution {
 public:
     TreeNode* reConstructBinaryTree(vector<int> pre,vector<int> vin) {
-        if(pre.size()==0||vin.size()==0){
+        if(pre.size() == 0 || vin.size() == 0){
             return NULL;
         }
-        // 寻找根节点
+        // 寻找父节点
         TreeNode* root = new TreeNode(pre[0]);
-
+        // 在中序遍历中寻找父节点
         int id = 0;
-        while(id<vin.size()){
-            if(root->val==vin[id]){
+        while(id < vin.size()){
+            if(root->val == vin[id]){
                 break;
             }
             id++;
         }
 
         vector<int> preLeft, preRight, vinLeft, vinRight;
-        for(int i=0;i<id;i++){
-            preLeft.emplace_back(pre[i+1]);
+        for(int i = 0; i < id; i++){
+            preLeft.emplace_back(pre[i + 1]);
             vinLeft.emplace_back(vin[i]);
         }
-        for(int i=id+1;i<pre.size();i++){
+        for(int i = id + 1; i < pre.size(); i++){
             preRight.emplace_back(pre[i]);
             vinRight.emplace_back(vin[i]);
         }
@@ -89,7 +89,9 @@ private:
         }
         TreeNode* root = new TreeNode(preorder[preLeft]);
         int id = hashtable[root->val];
+        // 左子树的节点数目 id - inLeft
         root->left = helper(preorder, inorder, preLeft+1, preLeft+id-inLeft, inLeft, id-1);
+        // 右子树的节点就是剩下的部分
         root->right = helper(preorder, inorder, preLeft+id-inLeft+1, preRight, id+1, inRight);
         return root;
     }
