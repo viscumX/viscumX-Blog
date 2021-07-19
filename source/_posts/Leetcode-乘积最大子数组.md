@@ -15,6 +15,8 @@ tags: 刷题
 
 ## 解法
 
+分别记录最大数和最小数
+
 ```C++
 int maxProduct(vector<int>& nums) {
     int n = nums.size();
