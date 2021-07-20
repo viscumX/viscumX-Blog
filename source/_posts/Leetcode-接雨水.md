@@ -50,6 +50,8 @@ int trap(vector<int> &height)
 
 ### 单调栈
 
+保持栈是一个右下至上单调递减栈
+
 ```C++
 int trap(vector<int> &height)
 {
@@ -60,6 +62,7 @@ int trap(vector<int> &height)
     {
         while (!s.empty() && height[i] > height[s.top()])
         {
+            // 得到栈顶元素
             int t = s.top();
             s.pop();
             if (s.empty())
@@ -78,6 +81,8 @@ int trap(vector<int> &height)
 ```
 
 ### 双指针
+
+移动其中一边时，另一边会保持当前最大值。从动态规划优化得到
 
 ```C++
 int trap(vector<int> &height)
