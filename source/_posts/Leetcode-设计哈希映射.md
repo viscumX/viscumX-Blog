@@ -24,6 +24,8 @@ tags: 刷题
 
 ### 简单数组
 
+一维数组实现
+
 ```C++
 class MyHashMap {
 public:
@@ -51,4 +53,181 @@ public:
 };
 ```
 
-###
+### 链表法
+
+用链表来节省空间
+
+```C++
+class MyHashMap {
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() {
+        size = 1009;
+        hashmap.resize(size);
+    }
+
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        Node *pNode = new Node(key, value);
+        int idx = getIndex(key);
+        if (!hashmap[idx]) { // 位置无key
+            hashmap[idx] = pNode;
+        } else {
+            Node *cur = hashmap[idx];
+            while (cur && cur->key != key) {
+                cur = cur->next;
+            }
+            if (!cur) { // 之前位置有其他key
+                pNode->next = hashmap[idx];
+                hashmap[idx] = pNode;
+            } else { // 之前有值
+                cur->val = value;
+            }
+        }
+    }
+
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        int idx = getIndex(key);
+        if (!hashmap[idx]) {
+            return -1;
+        }
+        Node *cur = hashmap[idx];
+        while (cur && cur->key != key) {
+            cur = cur->next;
+        }
+        return cur == nullptr ? -1 : cur->val;
+    }
+
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        if (get(key) == -1) {
+            return;
+        }
+        int idx = getIndex(key);
+        Node *cur = hashmap[idx];
+        if (cur->key == key) {
+            Node *delNode = hashmap[idx]->next;
+            cur->next = cur;
+            hashmap[idx] = delNode;
+        } else {
+            while (cur && cur->next && cur->next->key != key) {
+                cur = cur->next;
+            }
+            Node *delNode = cur->next;
+            cur->next = delNode->next;
+            delNode->next = delNode;
+        }
+    }
+private:
+    struct Node {
+        int key, val;
+        Node *next;
+        Node(int _key, int _val) : key(_key), val(_val), next(nullptr) { }
+    };
+    vector<Node*> hashmap;
+    int size;
+    int getIndex(int x) {
+        return x % size;
+    }
+};
+```
+
+还可以用 list 取代链表，实现上更加简单
+
+```C++
+class MyHashMap {
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() : data(base) {
+
+    }
+
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        int h = hash(key);
+        for (auto it = data[h].begin(); it != data[h].end(); ++it) {
+            if (it->first == key) {
+                it->second = value;
+                return;
+            }
+        }
+        data[h].push_back(make_pair(key, value));
+    }
+
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        int h = hash(key);
+        for (auto it = data[h].begin(); it != data[h].end(); ++it){
+            if (it->first == key) {
+                return it->second;
+            }
+        }
+        return -1;
+    }
+
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        int h = hash(key);
+        for (auto it = data[h].begin(); it != data[h].end(); ++it) {
+            if (it->first == key) {
+                data[h].erase(it);
+                return;
+            }
+        }
+    }
+private:
+    vector<list<pair<int, int>>> data;
+    static const int base = 769;
+    int hash(int key) {
+        return key % base;
+    }
+};
+```
+
+### 开放寻址法
+
+同时记录 key 和 value，并进行地址的线性探测，直至表填满
+
+```C++
+class MyHashMap {
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() {
+        hashmap = vector<pair<int, int>>(N, {-1, -1});
+    }
+
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        int k = hash(key);
+        hashmap[k] = {key, value};
+    }
+
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        int k = hash(key);
+        if (hashmap[k].first == -1) {
+            return -1;
+        }
+        return hashmap[k].second;
+    }
+
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        int k = hash(key);
+        if (hashmap[k].first != -1) {
+            hashmap[k].first = -2;
+        }
+    }
+private:
+    const static int N = 20011;
+    vector<pair<int, int>> hashmap;
+    int hash(int key) {
+        int k = key % N;
+        while (hashmap[k].first != key && hashmap[k].first != -1) {
+            k = (k + 1) % N;
+        }
+        return k;
+    }
+};
+```
